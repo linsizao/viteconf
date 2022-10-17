@@ -28,7 +28,7 @@ This is the main development repository for the ViteConf 2022 online conference 
 
 Feel free to submit a PR for small bug fixes such as a typo or small improvements.
 
-For work bigger in scope, please first create an issue to discussed the planned change.
+For work bigger in scope, please first [create an issue](https://github.com/stackblitz/viteconf/issues/new) to discusse the planned change.
 
 ## Development
 
