@@ -1,0 +1,48 @@
+body {
+	--app-size-container-max-width: 1340px;
+
+	--app-color-light: #0f0414;
+	--app-color-light-contrast: hsl(0, 0%, 89%);
+	--app-color-light-contrast-hsl: 0, 0%, 89%;
+
+	--app-color-shell: hsl(281, 67%, 5%);
+	--app-color-shell-hs: 281, 67%;
+	--app-color-shell-hsl: 281, 67%, 5%;
+
+	--app-background-gradient: linear-gradient(120deg, #bd34fe 30%, #41d1ff);
+
+	--app-color-background-blue: #0585c5;
+	--app-color-background-blue-dark: #52c7fa1a;
+
+	--app-color-foreground-blue-bright: #00aaff;
+	--app-color-foreground-blue-light: #a7dff6;
+	--app-color-foreground-blue: #54c8fa;
+	--app-color-foreground-blue-50: hsla(198, 94%, 65%, 0.5);
+	--app-color-background-violet-dark: #0f0612;
+
+	--app-color-border-violet-white: rgba(207, 96, 255, 0.16);
+	--app-color-foreground-violet-light: #c6aad2;
+	--app-color-foreground-violet: #be1cfa;
+	--app-color-foreground-violet-bright: #a744f4;
+	--app-color-foreground-violet-mid: #724684;
+	--app-color-foreground-violet-mid-transp: rgba(115, 70, 132, 0.7);
+	--app-color-foreground-violet-dark: #280f32;
+
+	--app-background-gradient-blue_to_violet: linear-gradient(
+		130deg,
+		var(--app-color-foreground-blue) 30%,
+		var(--app-color-foreground-violet) 70%
+	);
+	--app-background-gradient-light_violet: linear-gradient(
+		to bottom right,
+		#ff87fa 30%,
+		var(--app-color-foreground-violet) 70%
+	);
+
+	--app-font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+		Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	--app-font-family-mono: 'Jetbrains Mono', 'SFMono-Regular', 'Menlo', 'Monaco',
+		'Consolas', 'Liberation Mono', 'Courier New', monospace;
+
+	--transition-duration: 0;
+}

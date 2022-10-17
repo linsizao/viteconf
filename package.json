@@ -1,0 +1,41 @@
+{
+	"private": true,
+	"scripts": {
+		"build": "nuxt build",
+		"dev": "nuxt dev",
+		"generate": "nuxt generate",
+		"preview": "nuxt preview"
+	},
+	"devDependencies": {
+		"@fontsource/inter": "^4.5.12",
+		"@fontsource/roboto-mono": "^4.5.8",
+		"@iconify-json/ic": "^1.1.9",
+		"@iconify-json/material-symbols": "^1.1.18",
+		"@iconify-json/mdi": "^1.1.33",
+		"@iconify-json/ph": "^1.1.2",
+		"autoprefixer": "^10.4.11",
+		"lint-staged": "^13.0.3",
+		"nuxt": "3.0.0-rc.8",
+		"postcss": "^8.4.16",
+		"prettier": "^2.7.1",
+		"sass": "^1.54.9",
+		"simple-git-hooks": "^2.8.0",
+		"unplugin-icons": "^0.14.10",
+		"vite-imagetools": "^4.0.9",
+		"vue": "3.2.40"
+	},
+	"dependencies": {
+		"@neoconfetti/svelte": "^1.0.0",
+		"@vueuse/core": "^9.2.0",
+		"@widgetbot/html-embed": "^1.2.0",
+		"firebase": "9.9.2"
+	},
+	"simple-git-hooks": {
+		"pre-commit": "pnpm exec lint-staged --concurrent false"
+	},
+	"lint-staged": {
+		"*.{ts,css,html,vue}": [
+			"prettier --write *.{ts,css,html,vue} --cache --ignore-unknown"
+		]
+	}
+}
