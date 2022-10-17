@@ -24,7 +24,15 @@ This is the main development repository for the ViteConf 2022 online conference 
 - 🔩 Universal Plugin Interface
 - 🔑 Fully Typed APIs
 
-To get started developing the website, we recommend using the "Start new PR" button above to open a fresh production-ready environment in [StackBlitz Codeflow](https://stackblitz.com/codeflow).
+## Contributing
+
+Feel free to submit a PR for small bug fixes such as a typo or small improvements.
+
+For work bigger in scope, please first [create an issue](https://github.com/stackblitz/viteconf/issues/new) to discusse the planned change.
+
+## Development
+
+To get started developing the website, we recommend using the "Start new PR" button above to open a fresh production-ready environment in [StackBlitz Codeflow](https://developer.stackblitz.com/codeflow).
 
 ## License
 
