@@ -14,11 +14,16 @@ import {
 const {
 	talk,
 	isFocused = false,
+	replay = false,
 	showLiveTalkLink = false,
+	main = true,
+	released = true,
 } = defineProps<{
 	talk: TalkData;
 	isFocused?: boolean;
-
+	replay?: boolean;
+	main?: boolean;
+	released?: boolean;
 	/** Show the live talk link */
 	showLiveTalkLink?: boolean;
 }>();
@@ -56,6 +61,20 @@ onMounted(async () => {
 		});
 	}
 });
+
+function formatTimeFromSeconds(seconds: number) {
+	const hours = Math.floor(seconds/(60*60))
+	const minutes = Math.floor((seconds - hours*60*60)/60)
+	return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+}
+
+const talkStartTime = $computed(() => {
+	return replay ? formatTimeFromSeconds(talk.time) : toTalkStartTime(talk.start)
+});
+const talkLocalStartTime = $computed(() => {
+	return replay ? formatTimeFromSeconds(talk.time) : toTalkStartLocaleTime(talk.start)
+});
+
 </script>
 
 <template>
@@ -91,10 +110,10 @@ onMounted(async () => {
 			<p
 				class="time"
 				v-if="!isBlank(talk) && talk.start"
-				:title="'Your locale time from ' + toTalkStartTime(talk.start)"
+				:title="'Your locale time from ' + talkStartTime"
 			>
-				<ClientOnly :placeholder="toTalkStartTime(talk.start)">
-					{{ toTalkStartLocaleTime(talk.start) }}
+				<ClientOnly :placeholder="talkStartTime">
+					{{ talkLocalStartTime }}
 				</ClientOnly>
 			</p>
 
@@ -109,9 +128,17 @@ onMounted(async () => {
 				:src="logoPath(talk.speaker)"
 			/>
 			<div :class="`talk-info ${talk.participants ? ' no-logo' : ''}`">
-				<p class="title" v-if="!isBlank(talk)">
-					{{ talk.shortTitle ?? talk.title }}
-				</p>
+				<template v-if="!isBlank(talk)">
+					<p v-if="replay && main" @click="skipToTalk(talk)" style="cursor: pointer;" class="title">
+						{{ talk.shortTitle ?? talk.title }}
+					</p>
+					<NuxtLink v-else-if="released" :to="main ? `/2022/replay/${talk.key}` : talk.video" style="cursor: pointer;" class="title">
+						{{ talk.shortTitle ?? talk.title }}
+					</NuxtLink>
+					<p v-else class="title">
+						{{ talk.shortTitle ?? talk.title }}
+					</p>
+				</template>
 				<template v-if="talk.participants">
 					<NuxtLink
 						v-for="(participant, i) in talk.participants"
@@ -523,5 +550,12 @@ $breakpoint-md: 760px;
 		width: 28px;
 		height: 28px;
 	}
+}
+
+.talk-info .title:hover {
+	background-image: var(--app-background-gradient-light_violet);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 </style>

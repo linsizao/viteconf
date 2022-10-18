@@ -12,10 +12,11 @@ onMounted(() => window.scrollTo?.({ behavior: 'smooth', top: 0 }));
 		<UserActions />
 		<main>
 			<HeroBanner />
+			<a href="/2022/replay" class="social-button blue feature centered">
+				Watch the 2022 replay!
+			</a>
 			<ConferenceInfoCta sgnupPage="https://viteconf.org" />
-			<ComingSoon />
 			<SpeakerList
-				:show-schedule="true"
 				:focused-speaker="undefined"
 				layout="grid"
 			/>
@@ -45,7 +46,8 @@ h4 {
 }
 
 a.social-button.feature {
-	margin-top: -2rem;
+	margin-top: 1.5rem;
+	margin-bottom: 1rem;
 	font-size: 2.25rem;
 }
 </style>

@@ -1,38 +1,24 @@
 <script lang="ts" setup>
 import '@@/assets/css/global.scss';
 import { useLiveHead } from '~~/composables/useHead';
-import { talks } from '~~/conference';
-import { talkTitleToSlug } from '~~/helpers/utils';
 
 const { currentTalk, upcomingTalks } = $(usePlayerCurrentSchedule());
 
-useMainHead();
+const talk = useTalkFromRoute();
 
-const route = useRoute();
-
-let queryTalk = (route.query.talk as string)?.toLowerCase();
-if (queryTalk === 'hosting_and_the_edge') {
-	queryTalk = 'vite__aws_amplify';
-}
-
-const talk = Object.values(talks).find(
-	(talk) => talkTitleToSlug(talk.title) === queryTalk
-);
-
-if (!talk) {
-	useMainHead({ ae: true });
-} else {
-	useLiveHead(talk);
-}
+useReplayHead(talk);
 
 onMounted(() => {
 	import('@widgetbot/html-embed');
 
-	if (upcomingTalks.length > 0)
+	if (upcomingTalks.length > 0) {
 		window.scrollTo({
 			behavior: 'smooth',
 			top: 0,
 		});
+	}
+	
+	hideFullLogo();
 });
 
 const chatOpen = useChatOpen();
@@ -41,15 +27,11 @@ const chatOpen = useChatOpen();
 <template>
 	<div>
 		<EcosystemBackground />
-		<HeroBanner />
-		<WatchReplay />
-		<!--main>
+		<main>
 			<PlayerActions />
 
-			<PlayerDialog></PlayerDialog>
-
 			<div class="top-area">
-				<LiveVideo />
+				<ReplayVideo />
 
 				<div v-show="chatOpen" class="discord-chat">
 					<widgetbot
@@ -62,11 +44,11 @@ const chatOpen = useChatOpen();
 				</div>
 			</div>
 			<div class="current-talk" v-if="currentTalk">
-				<PlayerTalk :talk="currentTalk" :isLive="true" />
+				<PlayerTalk :talk="currentTalk" />
 			</div>
-		</main-->
+		</main>
 		
-		<PlayerSchedule :show-live-talk-link="true" :isLive="true" />
+		<ConferenceSchedule :replay="true" />
 		<Partners />
 		<Footer />
 	</div>

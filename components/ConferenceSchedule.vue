@@ -7,9 +7,10 @@ import {
 } from '~~/conference';
 import { talkTitleToSlug, toTalkStartLocaleTime } from '~~/helpers/utils';
 
-const { showSocial = false } = defineProps<{
+const { showSocial = false, replay = false } = defineProps<{
 	showSocial?: boolean;
 	focusedTalk?: string;
+	replay?: boolean;
 }>();
 
 const formattedStartDate = toTalkStartLocaleTime(startDateTime, {
@@ -28,8 +29,8 @@ const formattedStartDate = toTalkStartLocaleTime(startDateTime, {
 				<SocialActions />
 			</template>
 
-			<h4>Schedule</h4>
-			<div class="schedule-info">
+			<h4>{{ replay ? 'Talks' : 'Schedule' }}</h4>
+			<div v-if="!replay" class="schedule-info">
 				<p>
 					<b>
 						The conference will last for 24hs starting at October 11,
@@ -60,6 +61,7 @@ const formattedStartDate = toTalkStartLocaleTime(startDateTime, {
 						</div>
 						<ConferenceScheduleTalk
 							v-for="(talk, i) in section.talks"
+							:replay="replay"
 							:talk="talk"
 							:key="i"
 							:is-focused="talkTitleToSlug(talk.title) === focusedTalk"
@@ -73,24 +75,28 @@ const formattedStartDate = toTalkStartLocaleTime(startDateTime, {
 				<div class="schedule-item">
 					<ConferenceScheduleTalk
 						v-for="(talk, i) in preConferenceTalks"
+						:main="false"
 						:talk="talk"
 						:key="i"
 						:is-focused="talkTitleToSlug(talk.title) === focusedTalk"
 					/>
 				</div>
 			</div>
-
-			<h4>Post-Conference Talks</h4>
-			<div class="schedule">
-				<div class="schedule-item">
-					<ConferenceScheduleTalk
-						v-for="(talk, i) in postConferenceTalks"
-						:talk="talk"
-						:key="i"
-						:is-focused="talkTitleToSlug(talk.title) === focusedTalk"
-					/>
+			<template v-if="!replay">
+				<h4>Post-Conference Talks</h4>
+				<div class="schedule">
+					<div class="schedule-item">
+						<ConferenceScheduleTalk
+							v-for="(talk, i) in postConferenceTalks"
+							:main="false"
+							:released="false"
+							:talk="talk"
+							:key="i"
+							:is-focused="talkTitleToSlug(talk.title) === focusedTalk"
+						/>
+					</div>
 				</div>
-			</div>
+			</template>
 		</div>
 	</section>
 </template>

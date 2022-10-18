@@ -1,20 +1,21 @@
 <script lang="ts" setup>
 import '@fontsource/roboto-mono/500.css';
 import DiscordIcon from '~icons/mdi/discord';
+import PrevIcon from '~icons/mdi/skip-previous';
+import NextIcon from '~icons/mdi/skip-next';
 import {
 	liveTwitterMessagesShareTalk,
-	speakers,
 	TalkData,
 } from '~~/conference';
 import { discordLink, liveTranscriptsLink } from '~~/helpers/constants';
-import { talkTitleToSlug } from '~~/helpers/utils';
 
-const { talk } = defineProps<{
+const player = $(usePlayerVideo());
+const { previousTalk, nextTalk } = $(usePlayerCurrentSchedule());
+
+const { talk, isLive = false } = defineProps<{
+	isLive?: boolean;
 	talk: TalkData;
 }>();
-
-const isBlank = (talk: TalkData) =>
-	!talk.duration || !talk.title || talk.speaker === speakers.tbd;
 
 const hasSpeaker = (talk: TalkData) => talk.speaker?.displayName !== 'TBD';
 
@@ -23,19 +24,21 @@ let showMode = $ref(false);
 
 const share = async () => {
 	let tweetText: string;
-	let url: string;
-
+	
 	if (!talk.speaker || talk.speaker.displayName === 'TBD') {
-		tweetText = `I am watching ViteConf live! Come watch!`;
-		url = 'https://viteconf.org/live';
+		tweetText = isLive ? `I am watching ViteConf live! Come watch!` : ``;
 	} else {
 		const messages = liveTwitterMessagesShareTalk;
 		const message =
 			messages[Math.floor(Math.random() * messages.length)] ?? messages[0];
 
 		tweetText = message(talk.speaker);
-		url = 'https://viteconf.org/live?talk=' + talkTitleToSlug(talk.title);
+		
 	}
+	
+	const baseUrl = isLive ? 'https://viteconf.org/live' : 'https://viteconf.org/2022/replay';
+
+	const url = `${baseUrl}/${talk.key}`;
 
 	const twitterUrl = `https://twitter.com/intent/tweet?url=${url}&text=${tweetText}`;
 
@@ -43,7 +46,7 @@ const share = async () => {
 };
 
 function getDiscordChatLink() {
-	return `${discordProtocol ? 'discord://' : 'https://'}${discordLink}`;
+	return `${discordProtocol ? 'discord://' : 'https://'}${talk.speaker?.chat ?? (talk.participants?.[0].chat ?? discordLink) }`;
 }
 
 let timeout;
@@ -61,16 +64,34 @@ function toggleDiscordProtocol() {
 	<div
 		class="talk"
 		:class="{
-			short: talk.duration < 10,
-			blank: isBlank(talk),
 			adapt: talk.participants,
 		}"
 	>
 		<div class="talk-container">
+			<div :class="`actions${showMode ? ' show-mode' : ''}`">
+				<span class="video-controls" v-if="!isLive">
+					<button
+						title="Previous Talk"
+						class="social-button previous-talk"
+						:disabled="player && !previousTalk"
+						@click="skipToTalk(previousTalk)"
+					>
+						<PrevIcon />
+					</button>
+					<button
+						title="Next Talk"
+						class="social-button next-talk"
+						:disabled="player && !nextTalk"
+						@click="skipToTalk(nextTalk)"
+					>
+						<NextIcon />
+					</button>
+				</span>
+			</div>
 			<div class="talk-content">
 				<div class="talk-info">
 					<div class="play-indicator"></div>
-					<p class="title" v-if="!isBlank(talk)">
+					<p class="title">
 						{{ talk.shortTitle ?? talk.title }}
 					</p>
 					<template v-if="talk.participants">
@@ -89,25 +110,26 @@ function toggleDiscordProtocol() {
 							</NuxtLink>
 						</p>
 					</template>
-
 					<template v-else>
-						<NuxtLink
-							:to="`/speakers/${talk.speaker?.screenName}`"
-							style="cursor: pointer"
-							class="speaker"
-							v-if="hasSpeaker(talk)"
-						>
-							{{ talk.speaker?.displayName }}
-						</NuxtLink>
+						<p class="speakers-container">
+							<NuxtLink
+								:to="`/speakers/${talk.speaker?.screenName}`"
+								style="cursor: pointer"
+								class="speaker"
+								v-if="hasSpeaker(talk)"
+							>
+								{{ talk.speaker?.displayName }}
+							</NuxtLink>
+						</p>
 					</template>
 				</div>
 			</div>
 			<div :class="`actions${showMode ? ' show-mode' : ''}`">
-				<a target="_blank" class="social-button" :href="liveTranscriptsLink">
+				<a v-if="isLive" target="_blank" class="social-button" :href="liveTranscriptsLink">
 					Transcript
 				</a>
-				<button class="social-button" @click="share">Share</button>
-				<a target="_blank" class="social-button" :href="getDiscordChatLink()">{{
+				<button class="social-button share" @click="share">Share</button>
+				<a target="_blank" class="social-button discuss" :href="getDiscordChatLink()">{{
 					showMode
 						? discordProtocol
 							? 'Open in App'
@@ -173,7 +195,7 @@ $breakpoint-md: 760px;
 	flex: 1;
 	display: flex;
 	gap: 1.9rem;
-	padding: 0.8rem 1rem;
+	padding: 0.8rem 0rem;
 	@media screen and (max-width: $breakpoint-md) {
 		padding-top: 14px;
 		padding-left: 14px;
@@ -232,9 +254,6 @@ $breakpoint-md: 760px;
 		max-width: calc(100% - 96px);
 	}
 }
-.short .title {
-	padding: 0;
-}
 
 .speakers-container {
 	display: flex;
@@ -248,31 +267,6 @@ $breakpoint-md: 760px;
 	font-weight: 500;
 	&:hover {
 		color: #fff;
-	}
-}
-
-.short.talk {
-	display: flex;
-	align-items: center;
-	min-height: 100px;
-	@media screen and (max-width: $breakpoint-md) {
-		align-items: flex-start;
-		min-height: 72px;
-		height: unset;
-		padding-bottom: 16px;
-	}
-	.logo {
-		transform: scale(0.85);
-		@media screen and (max-width: $breakpoint-md) {
-			transform: scale(0.9);
-		}
-	}
-	.speaker {
-		transform: translateY(1px);
-	}
-	.title {
-		width: unset;
-		max-width: 90%;
 	}
 }
 
@@ -297,7 +291,7 @@ $breakpoint-md: 760px;
 	}
 }
 
-.talk.adapt {
+.talk {
 	max-height: unset;
 	height: unset;
 	align-items: center;
@@ -321,7 +315,7 @@ $breakpoint-md: 760px;
 	justify-content: center;
 	cursor: pointer;
 	box-shadow: none;
-	@media screen and (max-width: 1300px) {
+	@media screen and (max-width: 1350px) {
 		min-width: unset;
 		padding: 12px 16px;
 	}
@@ -354,5 +348,40 @@ button.discord-button.discord-protocol {
 button.discord-button:hover {
 	outline: none;
 	color: white;
+}
+
+.video-controls {
+	display: flex;
+	flex-direction: row;
+	gap: 0.5rem;
+}
+.video-controls button.social-button {
+	min-width: 3.2rem;
+}
+
+.video-controls button.social-button svg {
+	transform: scale(1.4);
+}
+.video-controls button.social-button:disabled svg {
+	opacity: 0.5;
+}
+
+@media screen and (max-width: 1200px) {
+	.actions .discord-button, .actions .discuss {
+		display: none;
+	}
+}
+@media screen and (max-width: 1100px) {
+	.actions .share {
+		display: none;
+	}
+}
+@media screen and (max-width: 1000px) {
+	.actions {
+		display: none;
+	}
+	.talk-content {
+		padding-left: 1rem;
+	}
 }
 </style>
